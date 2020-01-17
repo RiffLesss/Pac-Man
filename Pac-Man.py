@@ -11,15 +11,16 @@ WIDTH = 24 * 28
 HEIGHT = 24 * 34
 STEP = 24
 karta = []
+score = 0
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 player = None
 
-# группы спрайтов
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+dots_group = pygame.sprite.Group()
 
 
 def load_image(name, color_key=None):
@@ -84,12 +85,17 @@ def generate_level(level):
                 Tile('right_down', x, y)
                 s.append('1')
             elif level[y][x] == '@':
-                new_player = Player(x, y, 25, 14)
+                new_player = Pacman(x, y, 25, 14)
+                s.append('.')
+            elif level[y][x] == 'd':
+                Dot('dot', x, y)
+                s.append('.')
+            elif level[y][x] == 'D':
+                Dot('big_dot', x, y)
                 s.append('.')
             if len(s) == 28:
                 karta.append(s)
                 s = []
-    # вернем игрока, а также размер поля в клетках
     for elem in karta:
         print(elem)
     return new_player, x, y
@@ -131,6 +137,7 @@ tile_images = {'empty': load_image('black.jpg'), 'vert': load_image('vert.jpg'),
                'right_up': load_image('right_up.jpg'), 'right_down': load_image('right_down.jpg'),
                'vert2': load_image('vert2.jpg'), 'hor2': load_image('hor2.jpg')}
 player_image = load_image('pacman.jpg')
+dot_images = {'dot': load_image('dot.jpg'), 'big_dot': load_image('big_dot.jpg')}
 tile_width = tile_height = 24
 
 
@@ -141,13 +148,29 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
 
 
-class Player(pygame.sprite.Sprite):
+class Pacman(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y, choord_x, choord_y):
         super().__init__(player_group, all_sprites)
         self.image = player_image
         self.choord_x = choord_x
         self.choord_y = choord_y
         self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Dot(pygame.sprite.Sprite):
+    def __init__(self, dot_type, pos_x, pos_y):
+        super().__init__(dots_group, all_sprites)
+        self.image = dot_images[dot_type]
+        self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        global score
+        if pygame.sprite.collide_mask(self, player):
+            score += 1
+            print(score)
+            self.kill()
 
 
 start_screen()
@@ -158,7 +181,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if player.choord_x == 16 and  player.choord_y == 27 and event.key == pygame.K_RIGHT:
+            if player.choord_x == 16 and player.choord_y == 27 and event.key == pygame.K_RIGHT:
                 player.choord_y = 0
                 player.rect.x -= STEP
             if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] == '.':
@@ -175,7 +198,9 @@ while running:
                 player.choord_x = player.choord_x + 1
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
+    dots_group.draw(screen)
     player_group.draw(screen)
+    all_sprites.update()
     pygame.display.flip()
     clock.tick(FPS)
 terminate()
