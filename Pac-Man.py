@@ -154,8 +154,17 @@ class Pacman(pygame.sprite.Sprite):
         self.image = player_image
         self.choord_x = choord_x
         self.choord_y = choord_y
+        self.im = 0
         self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
         self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        if (self.im // 10) % 2 == 0:
+            self.image = load_image('pacman.jpg')
+            self.im += 1
+        else:
+            self.image = load_image('pacman2.jpg')
+            self.im += 1
 
 
 class Dot(pygame.sprite.Sprite):
@@ -171,6 +180,8 @@ class Dot(pygame.sprite.Sprite):
             score += 1
             print(score)
             self.kill()
+            if score == 244:
+                terminate()
 
 
 start_screen()
@@ -184,16 +195,16 @@ while running:
             if player.choord_x == 16 and player.choord_y == 27 and event.key == pygame.K_RIGHT:
                 player.choord_y = 0
                 player.rect.x -= STEP
-            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] == '.':
+            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1':
                 player.rect.x -= STEP
                 player.choord_y = player.choord_y - 1
-            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] == '.':
+            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1':
                 player.rect.x += STEP
                 player.choord_y = player.choord_y + 1
-            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] == '.':
+            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1':
                 player.rect.y -= STEP
                 player.choord_x = player.choord_x - 1
-            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] == '.':
+            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1':
                 player.rect.y += STEP
                 player.choord_x = player.choord_x + 1
     screen.fill(pygame.Color(0, 0, 0))
