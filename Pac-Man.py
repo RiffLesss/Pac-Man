@@ -213,5 +213,6 @@ while running:
     player_group.draw(screen)
     all_sprites.update()
     pygame.display.flip()
+
     clock.tick(FPS)
 terminate()
