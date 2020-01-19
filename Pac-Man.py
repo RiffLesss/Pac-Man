@@ -225,64 +225,81 @@ while running:
 
     clock.tick(50)
     # Движение Блинки (Красный призрак)
-    blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
-    if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
-        if blinky_last_position == 'UP':
-            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] == '.' or \
-                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] == '+':
+    if blinky_red_spirit.choord_x != player.choord_y and blinky_red_spirit.choord_y != player.choord_x:
+        blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
+        if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+            if blinky_last_position == 'UP':
+                if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] != '1':
+                    blinky_last_position = 'RIGHT'
+                    blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
+                    blinky_red_spirit.rect.x -= STEP
+                elif karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] != '1':
+                    blinky_last_position = 'LEFT'
+                    blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
+                    blinky_red_spirit.rect.x += STEP
+                elif karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] != '1':
+                    blinky_last_position = 'UP'
+                    blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+                    blinky_red_spirit.rect.y += STEP
+            elif blinky_last_position == 'DOWN':
+                if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] != '1':
+                    blinky_last_position = 'RIGHT'
+                    blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
+                    blinky_red_spirit.rect.x -= STEP
+                elif karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] != '1':
+                    blinky_last_position = 'LEFT'
+                    blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
+                    blinky_red_spirit.rect.x += STEP
+                elif karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] != '1':
+                    blinky_last_position = 'DOWN'
+                    blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+                    blinky_red_spirit.rect.y -= STEP
+            elif blinky_last_position == 'LEFT':
+                if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] != '1':
+                    blinky_last_position = 'LEFT'
+                    blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
+                    blinky_red_spirit.rect.x += STEP
+                elif karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] != '1':
+                    blinky_last_position = 'UP'
+                    blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+                    blinky_red_spirit.rect.y += STEP
+                elif karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] != '1':
+                    blinky_last_position = 'DOWN'
+                    blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+                    blinky_red_spirit.rect.y -= STEP
+            elif blinky_last_position == 'RIGHT':
+                if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] != '1':
+                    blinky_last_position = 'RIGHT'
+                    blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
+                    blinky_red_spirit.rect.x -= STEP
+                elif karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] != '1':
+                    blinky_last_position = 'UP'
+                    blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+                    blinky_red_spirit.rect.y += STEP
+                elif karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] != '1':
+                    blinky_last_position = 'DOWN'
+                    blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+                    blinky_red_spirit.rect.y -= STEP
+        if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '+':
+            min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                              blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                              blinky_red_spirit.mission[0], blinky_red_spirit.mission[1])
+            if min_way == 'UP':
+                blinky_last_position = 'DOWN'
+                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+                blinky_red_spirit.rect.y -= STEP
+            elif min_way == 'DOWN':
+                blinky_last_position = 'UP'
+                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+                blinky_red_spirit.rect.y += STEP
+            elif min_way == 'LEFT':
+                blinky_last_position = 'RIGHT'
                 blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
                 blinky_red_spirit.rect.x -= STEP
-            elif karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '.' or \
-                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '+':
+            elif min_way == 'RIGHT':
+                blinky_last_position = 'LEFT'
                 blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
                 blinky_red_spirit.rect.x += STEP
-            elif karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] == '.' or \
-                    karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] == '+':
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
-                blinky_red_spirit.rect.y -= STEP
-        elif blinky_last_position == 'DOWN':
-            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] == '.' or \
-                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] == '+':
-                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
-                blinky_red_spirit.rect.x -= STEP
-            elif karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '.' or \
-                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '+':
-                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
-                blinky_red_spirit.rect.x += STEP
-            elif karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] == '.' or \
-                    karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] == '+':
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
-                blinky_red_spirit.rect.y += STEP
-        elif blinky_last_position == 'LEFT':
-            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '.' or \
-                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '+':
-                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
-                blinky_red_spirit.rect.x += STEP
-            elif karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] == '.' or \
-                    karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] == '+':
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
-                blinky_red_spirit.rect.y -= STEP
-            elif karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] == '.' or \
-                    karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] == '+':
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
-                blinky_red_spirit.rect.y += STEP
-        elif blinky_last_position == 'RIGHT':
-            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] == '.' or \
-                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] == '+':
-                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
-                blinky_red_spirit.rect.x -= STEP
-            elif karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] == '.' or \
-                    karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] == '+':
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
-                blinky_red_spirit.rect.y -= STEP
-            elif karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] == '.' or \
-                    karta[blinky_red_spirit.choord_x - 1][blinky_red_spirit.choord_y] == '+':
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
-                blinky_red_spirit.rect.y += STEP
-    if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '+':
-        min_way = blinky_red_spirit.folow(karta, blinky_last_position,
-                                          blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
-                                          blinky_red_spirit.mission[0], blinky_red_spirit.mission[1])
 
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
