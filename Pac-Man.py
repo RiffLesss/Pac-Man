@@ -12,7 +12,7 @@ HEIGHT = 24 * 34
 STEP = 24
 karta = []
 score = 0
-
+pac = 'pacman.jpg'
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 player = None
@@ -159,8 +159,9 @@ class Pacman(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
+        global pac
         if (self.im // 10) % 2 == 0:
-            self.image = load_image('pacman.jpg')
+            self.image = load_image(pac)
             self.im += 1
         else:
             self.image = load_image('pacman2.jpg')
@@ -197,15 +198,19 @@ while running:
                 player.rect.x -= STEP
             if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1':
                 player.rect.x -= STEP
+                pac = 'pacman5.jpg'
                 player.choord_y = player.choord_y - 1
             if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1':
                 player.rect.x += STEP
+                pac = 'pacman.jpg'
                 player.choord_y = player.choord_y + 1
             if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1':
                 player.rect.y -= STEP
+                pac = 'pacman3.jpg'
                 player.choord_x = player.choord_x - 1
             if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1':
                 player.rect.y += STEP
+                pac = 'pacman4.jpg'
                 player.choord_x = player.choord_x + 1
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
