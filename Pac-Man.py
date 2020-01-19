@@ -255,7 +255,7 @@ while running:
                 blinky_red_spirit.rect.y += STEP
         elif blinky_last_position == 'LEFT':
             if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '.' or \
-                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y - 1] == '+':
+                    karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y + 1] == '+':
                 blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
                 blinky_red_spirit.rect.x += STEP
             elif karta[blinky_red_spirit.choord_x + 1][blinky_red_spirit.choord_y] == '.' or \
