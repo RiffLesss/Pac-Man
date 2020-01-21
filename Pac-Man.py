@@ -155,7 +155,7 @@ class Pacman(pygame.sprite.Sprite):
         self.choord_x = choord_x
         self.choord_y = choord_y
         self.im = 0
-        self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
+        self.rect = self.image.get_rect().move(tile_width * pos_x - 5, tile_height * pos_y - 8)
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
@@ -188,80 +188,96 @@ class Dot(pygame.sprite.Sprite):
 start_screen()
 player, level_x, level_y = generate_level(load_level('map2.txt'))
 running = True
+run_left = False
+run_right = False
+run_up = False
+run_down = False
+k = 0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            run = True
-            if player.choord_x == 16 and player.choord_y == 27 and event.key == pygame.K_RIGHT:
-                player.choord_y = 0
-                player.rect.x -= STEP * 28
-            if event.key == pygame.K_LEFT:
-                k = 0
-                while karta[player.choord_x][player.choord_y - 1] != '1':
-                    player.rect.x -= 1
-                    pac = 'pacman5.jpg'
-                    k += 1
-                    print(player.choord_x, player.choord_y)
-                    if k == 24:
-                        player.choord_y = player.choord_y - 1
-                        k = 0
-                    screen.fill(pygame.Color(0, 0, 0))
-                    tiles_group.draw(screen)
-                    dots_group.draw(screen)
-                    player_group.draw(screen)
-                    all_sprites.update()
-                    pygame.display.flip()
-                    clock.tick(FPS)
-            if event.key == pygame.K_RIGHT:
-                k = 0
-                while run and karta[player.choord_x][player.choord_y + 1] != '1':
-                    player.rect.x += 1
-                    pac = 'pacman.jpg'
-                    k += 1
-                    if k == 24:
-                        player.choord_y = player.choord_y + 1
-                        k = 0
-                    screen.fill(pygame.Color(0, 0, 0))
-                    tiles_group.draw(screen)
-                    dots_group.draw(screen)
-                    player_group.draw(screen)
-                    all_sprites.update()
-                    pygame.display.flip()
-                    clock.tick(FPS)
-            if event.key == pygame.K_UP:
-                k = 0
-                while run and karta[player.choord_x - 1][player.choord_y] != '1':
-                    player.rect.y -= 1
-                    pac = 'pacman3.jpg'
-                    k += 1
-                    if k == 24:
-                        player.choord_x = player.choord_x- 1
-                        k = 0
-                    screen.fill(pygame.Color(0, 0, 0))
-                    tiles_group.draw(screen)
-                    dots_group.draw(screen)
-                    player_group.draw(screen)
-                    all_sprites.update()
-                    pygame.display.flip()
-                    clock.tick(FPS)
-            if event.key == pygame.K_DOWN:
-                k = 0
-                while run and karta[player.choord_x + 1][player.choord_y] != '1':
-                    player.rect.y += 1
-                    pac = 'pacman4.jpg'
-                    k += 1
-                    if k == 24:
-                        player.choord_x = player.choord_x + 1
-                        k = 0
-                    screen.fill(pygame.Color(0, 0, 0))
-                    tiles_group.draw(screen)
-                    dots_group.draw(screen)
-                    player_group.draw(screen)
-                    all_sprites.update()
-                    pygame.display.flip()
-                    clock.tick(FPS)
+            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1':
+                if k != 0:
+                    if run_down:
+                        player.rect.y -= k
+                    elif run_up:
+                        player.rect.y += k
+                    elif run_right:
+                        player.rect.x -= k
+                    k = 0
+                run_left = True
+                run_right = False
+                run_up = False
+                run_down = False
+            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1':
+                if k != 0:
+                    if run_down:
+                        player.rect.y -= k
+                    elif run_up:
+                        player.rect.y += k
+                    elif run_left:
+                        player.rect.x += k
+                    k = 0
+                run_right = True
+                run_left = False
+                run_up = False
+                run_down = False
+            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1':
+                if k != 0:
+                    if run_down:
+                        player.rect.y -= k
+                    elif run_left:
+                        player.rect.x += k
+                    elif run_right:
+                        player.rect.x -= k
+                    k = 0
+                run_up = True
+                run_right = False
+                run_left = False
+                run_down = False
+            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1':
+                if k != 0:
+                    if run_up:
+                        player.rect.y += k
+                    elif run_left:
+                        player.rect.x += k
+                    elif run_right:
+                        player.rect.x -= k
+                    k = 0
+                run_down = True
+                run_right = False
+                run_up = False
+                run_left = False
+    if run_down and karta[player.choord_x + 1][player.choord_y] != '1':
+        player.rect.y += 1
+        pac = 'pacman4.jpg'
+        k += 1
+        if k == 24:
+            player.choord_x = player.choord_x + 1
+            k = 0
+    elif run_up and karta[player.choord_x - 1][player.choord_y] != '1':
+        player.rect.y -= 1
+        pac = 'pacman3.jpg'
+        k += 1
+        if k == 24:
+            player.choord_x = player.choord_x - 1
+            k = 0
+    elif run_left and karta[player.choord_x][player.choord_y - 1] != '1':
+        player.rect.x -= 1
+        pac = 'pacman5.jpg'
+        k += 1
+        if k == 24:
+            player.choord_y = player.choord_y - 1
+            k = 0
+    elif run_right and karta[player.choord_x][player.choord_y + 1] != '1':
+        player.rect.x += 1
+        pac = 'pacman.jpg'
+        k += 1
+        if k == 24:
+            player.choord_y = player.choord_y + 1
+            k = 0
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     dots_group.draw(screen)
