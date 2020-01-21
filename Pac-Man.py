@@ -6,7 +6,7 @@ pygame.init()
 pygame.key.set_repeat(200, 70)
 
 
-FPS = 50
+FPS = 60
 WIDTH = 24 * 28
 HEIGHT = 24 * 34
 STEP = 24
@@ -193,25 +193,75 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
+            run = True
             if player.choord_x == 16 and player.choord_y == 27 and event.key == pygame.K_RIGHT:
                 player.choord_y = 0
-                player.rect.x -= STEP
-            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1':
-                player.rect.x -= STEP
-                pac = 'pacman5.jpg'
-                player.choord_y = player.choord_y - 1
-            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1':
-                player.rect.x += STEP
-                pac = 'pacman.jpg'
-                player.choord_y = player.choord_y + 1
-            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1':
-                player.rect.y -= STEP
-                pac = 'pacman3.jpg'
-                player.choord_x = player.choord_x - 1
-            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1':
-                player.rect.y += STEP
-                pac = 'pacman4.jpg'
-                player.choord_x = player.choord_x + 1
+                player.rect.x -= STEP * 28
+            if event.key == pygame.K_LEFT:
+                k = 0
+                while karta[player.choord_x][player.choord_y - 1] != '1':
+                    player.rect.x -= 1
+                    pac = 'pacman5.jpg'
+                    k += 1
+                    print(player.choord_x, player.choord_y)
+                    if k == 24:
+                        player.choord_y = player.choord_y - 1
+                        k = 0
+                    screen.fill(pygame.Color(0, 0, 0))
+                    tiles_group.draw(screen)
+                    dots_group.draw(screen)
+                    player_group.draw(screen)
+                    all_sprites.update()
+                    pygame.display.flip()
+                    clock.tick(FPS)
+            if event.key == pygame.K_RIGHT:
+                k = 0
+                while run and karta[player.choord_x][player.choord_y + 1] != '1':
+                    player.rect.x += 1
+                    pac = 'pacman.jpg'
+                    k += 1
+                    if k == 24:
+                        player.choord_y = player.choord_y + 1
+                        k = 0
+                    screen.fill(pygame.Color(0, 0, 0))
+                    tiles_group.draw(screen)
+                    dots_group.draw(screen)
+                    player_group.draw(screen)
+                    all_sprites.update()
+                    pygame.display.flip()
+                    clock.tick(FPS)
+            if event.key == pygame.K_UP:
+                k = 0
+                while run and karta[player.choord_x - 1][player.choord_y] != '1':
+                    player.rect.y -= 1
+                    pac = 'pacman3.jpg'
+                    k += 1
+                    if k == 24:
+                        player.choord_x = player.choord_x- 1
+                        k = 0
+                    screen.fill(pygame.Color(0, 0, 0))
+                    tiles_group.draw(screen)
+                    dots_group.draw(screen)
+                    player_group.draw(screen)
+                    all_sprites.update()
+                    pygame.display.flip()
+                    clock.tick(FPS)
+            if event.key == pygame.K_DOWN:
+                k = 0
+                while run and karta[player.choord_x + 1][player.choord_y] != '1':
+                    player.rect.y += 1
+                    pac = 'pacman4.jpg'
+                    k += 1
+                    if k == 24:
+                        player.choord_x = player.choord_x + 1
+                        k = 0
+                    screen.fill(pygame.Color(0, 0, 0))
+                    tiles_group.draw(screen)
+                    dots_group.draw(screen)
+                    player_group.draw(screen)
+                    all_sprites.update()
+                    pygame.display.flip()
+                    clock.tick(FPS)
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     dots_group.draw(screen)
