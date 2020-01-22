@@ -114,7 +114,7 @@ def start_screen():
                   "Если в правилах несколько строк,",
                   "приходится выводить их построчно"]
 
-    fon = pygame.transform.scale(load_image('pacman.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
@@ -171,6 +171,10 @@ class Pacman(pygame.sprite.Sprite):
         else:
             self.image = load_image('pacman2.jpg')
             self.im += 1
+        if pygame.sprite.collide_mask(self, blinky_red_spirit):
+            self.kill()
+            terminate()
+
 
 
 class Dot(pygame.sprite.Sprite):
@@ -206,6 +210,9 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_s:
+                pygame.mixer.music.load('salo.mp3')
+                pygame.mixer.music.play(0)
             if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1':
                 if k != 0:
                     if run_down:
