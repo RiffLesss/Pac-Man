@@ -9,8 +9,8 @@ pygame.key.set_repeat(200, 70)
 FPS = 60
 WIDTH = 24 * 28
 HEIGHT = 24 * 34
-STEP = 24
 SPIRIT_SPEED = 100
+STEP = 24
 karta = []
 score = 0
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -160,6 +160,11 @@ class Pacman(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
         self.mask = pygame.mask.from_surface(self.image)
 
+    def update(self):
+        if pygame.sprite.collide_mask(self, blinky_red_spirit):
+            self.kill()
+            terminate()
+
 
 class Dot(pygame.sprite.Sprite):
     def __init__(self, dot_type, pos_x, pos_y):
@@ -208,8 +213,9 @@ while running:
                 player.rect.y += STEP
                 player.choord_x = player.choord_x + 1
 
-    clock.tick(50)
+
     # Движение Блинки (Красный призрак)
+    k_red = 0
     blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
     if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
         possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
@@ -219,20 +225,32 @@ while running:
                                           possible_turns)
         if min_way == 'UP':
             blinky_last_position = 'DOWN'
-            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
-            blinky_red_spirit.rect.y -= STEP
+            blinky_red_spirit.rect.y -= 1
+            k_red += 1
+            if k_red == 24:
+                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+                k_red = 0
         elif min_way == 'DOWN':
             blinky_last_position = 'UP'
-            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
-            blinky_red_spirit.rect.y += STEP
+            blinky_red_spirit.rect.y += 1
+            k_red += 1
+            if k_red == 24:
+                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+                k_red = 0
         elif min_way == 'LEFT':
             blinky_last_position = 'RIGHT'
-            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
-            blinky_red_spirit.rect.x -= STEP
+            blinky_red_spirit.rect.x -= 1
+            k_red += 1
+            if k_red == 24:
+                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
+                k_red = 0
         elif min_way == 'RIGHT':
             blinky_last_position = 'LEFT'
-            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
-            blinky_red_spirit.rect.x += STEP
+            blinky_red_spirit.rect.x += 1
+            k_red += 1
+            if k_red == 24:
+                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
+                k_red = 0
 
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
