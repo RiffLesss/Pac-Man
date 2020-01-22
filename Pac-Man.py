@@ -183,6 +183,8 @@ class Dot(pygame.sprite.Sprite):
 
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
 blinky_last_position = 'LEFT'
+min_way = 'LEFT'
+k_red = 0
 
 start_screen()
 
@@ -197,60 +199,75 @@ while running:
                 player.choord_y = 0
                 player.rect.x -= STEP
             if event.key == pygame.K_LEFT and \
-                    (karta[player.choord_x][player.choord_y - 1] == '.' or karta[player.choord_x][player.choord_y - 1] == '+'):
+                    (karta[player.choord_x][player.choord_y - 1] == '.' or karta[player.choord_x][player.choord_y - 1] == 'x'):
                 player.rect.x -= STEP
                 player.choord_y = player.choord_y - 1
             if event.key == pygame.K_RIGHT and \
-                    (karta[player.choord_x][player.choord_y + 1] == '.' or karta[player.choord_x][player.choord_y + 1] == '+'):
+                    (karta[player.choord_x][player.choord_y + 1] == '.' or karta[player.choord_x][player.choord_y + 1] == 'x'):
                 player.rect.x += STEP
                 player.choord_y = player.choord_y + 1
             if event.key == pygame.K_UP and \
-                    (karta[player.choord_x - 1][player.choord_y] == '.' or karta[player.choord_x - 1][player.choord_y] == '+'):
+                    (karta[player.choord_x - 1][player.choord_y] == '.' or karta[player.choord_x - 1][player.choord_y] == 'x'):
                 player.rect.y -= STEP
                 player.choord_x = player.choord_x - 1
             if event.key == pygame.K_DOWN and \
-                    (karta[player.choord_x + 1][player.choord_y] == '.' or karta[player.choord_x + 1][player.choord_y] == '+'):
+                    (karta[player.choord_x + 1][player.choord_y] == '.' or karta[player.choord_x + 1][player.choord_y] == 'x'):
                 player.rect.y += STEP
                 player.choord_x = player.choord_x + 1
 
-
-    # Движение Блинки (Красный призрак)
-    k_red = 0
     blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
-    if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
-        possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
-        min_way = blinky_red_spirit.folow(karta, blinky_last_position,
-                                          blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
-                                          blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
-                                          possible_turns)
-        if min_way == 'UP':
-            blinky_last_position = 'DOWN'
-            blinky_red_spirit.rect.y -= 1
-            k_red += 1
-            if k_red == 24:
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
-                k_red = 0
-        elif min_way == 'DOWN':
-            blinky_last_position = 'UP'
-            blinky_red_spirit.rect.y += 1
-            k_red += 1
-            if k_red == 24:
-                blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
-                k_red = 0
-        elif min_way == 'LEFT':
-            blinky_last_position = 'RIGHT'
-            blinky_red_spirit.rect.x -= 1
-            k_red += 1
-            if k_red == 24:
-                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
-                k_red = 0
-        elif min_way == 'RIGHT':
-            blinky_last_position = 'LEFT'
-            blinky_red_spirit.rect.x += 1
-            k_red += 1
-            if k_red == 24:
-                blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
-                k_red = 0
+    if min_way == 'UP':
+        blinky_last_position = 'DOWN'
+        blinky_red_spirit.rect.y -= 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'DOWN':
+        blinky_last_position = 'UP'
+        blinky_red_spirit.rect.y += 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'LEFT':
+        blinky_last_position = 'RIGHT'
+        blinky_red_spirit.rect.x -= 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'RIGHT':
+        blinky_last_position = 'LEFT'
+        blinky_red_spirit.rect.x += 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
 
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
@@ -260,6 +277,5 @@ while running:
     all_sprites.update()
     pygame.display.flip()
     clock.tick(FPS)
-
 
 terminate()
