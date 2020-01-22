@@ -13,11 +13,9 @@ STEP = 24
 SPIRIT_SPEED = 100
 karta = []
 score = 0
-
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 player = None
-
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -97,21 +95,8 @@ def generate_level(level):
             if len(s) == 28:
                 karta.append(s)
                 s = []
-    #for i in range(3, len(karta) - 2):
-    #    for j in range(1, len(karta[i]) - 1):
-    #        if karta[i][j] == '.':
-    #            turn = 0
-    #            if karta[i + 1][j] == '.':
-    #                turn += 1
-    #            if karta[i - 1][j] == '.':
-    #                turn += 1
-    #            if karta[i][j + 1] == '.':
-    #                turn += 1
-    #            if karta[i][j - 1] == '.':
-    #                turn += 1
-    #            if turn > 2:
-    #                karta[i][j] = '+'
-    # вернем игрока, а также размер поля в клетках
+    karta[16][22] = 'x'
+    karta[16][5] = 'x'
     for elem in karta:
         print(elem)
     return new_player, x, y
@@ -124,9 +109,9 @@ def terminate():
 
 def start_screen():
     intro_text = ["ЗАСТАВКА", "",
-                  "Правила игры",
+                    "Правила игры",
                   "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
+                    "приходится выводить их построчно"]
     fon = pygame.transform.scale(load_image('pacman.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
@@ -194,8 +179,8 @@ class Dot(pygame.sprite.Sprite):
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
 blinky_last_position = 'LEFT'
 
-
 start_screen()
+
 player, level_x, level_y = generate_level(load_level('map2.txt'))
 running = True
 while running:
@@ -227,9 +212,11 @@ while running:
     # Движение Блинки (Красный призрак)
     blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
     if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+        possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         min_way = blinky_red_spirit.folow(karta, blinky_last_position,
                                           blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
-                                          blinky_red_spirit.mission[0], blinky_red_spirit.mission[1])
+                                          blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                          possible_turns)
         if min_way == 'UP':
             blinky_last_position = 'DOWN'
             blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
@@ -255,5 +242,6 @@ while running:
     all_sprites.update()
     pygame.display.flip()
     clock.tick(FPS)
+
 
 terminate()
