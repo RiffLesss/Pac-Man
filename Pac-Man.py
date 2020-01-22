@@ -1,6 +1,7 @@
 import os
 import sys
 import pygame
+import Spirits
 
 pygame.init()
 pygame.key.set_repeat(200, 70)
@@ -16,6 +17,7 @@ pac = 'pacman.jpg'
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 player = None
+
 
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -96,6 +98,8 @@ def generate_level(level):
             if len(s) == 28:
                 karta.append(s)
                 s = []
+    karta[16][22] = 'x'
+    karta[16][5] = 'x'
     for elem in karta:
         print(elem)
     return new_player, x, y
@@ -137,6 +141,7 @@ tile_images = {'empty': load_image('black.jpg'), 'vert': load_image('vert.jpg'),
                'right_up': load_image('right_up.jpg'), 'right_down': load_image('right_down.jpg'),
                'vert2': load_image('vert2.jpg'), 'hor2': load_image('hor2.jpg')}
 player_image = load_image('pacman.jpg')
+blinky_image = load_image('blinky_1.jpg')
 dot_images = {'dot': load_image('dot.jpg'), 'big_dot': load_image('big_dot.jpg')}
 tile_width = tile_height = 24
 
@@ -179,12 +184,14 @@ class Dot(pygame.sprite.Sprite):
         global score
         if pygame.sprite.collide_mask(self, player):
             score += 1
-            print(score)
             self.kill()
             if score == 244:
                 terminate()
 
 
+blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
+blinky_last_position = 'LEFT'
+min_way = 'RIGHT'
 start_screen()
 player, level_x, level_y = generate_level(load_level('map2.txt'))
 running = True
@@ -193,6 +200,7 @@ run_right = False
 run_up = False
 run_down = False
 k = 0
+k_red = 0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -256,6 +264,7 @@ while running:
         k += 1
         if k == 24:
             player.choord_x = player.choord_x + 1
+            print(player.choord_x, player.choord_y)
             k = 0
     elif run_up and karta[player.choord_x - 1][player.choord_y] != '1':
         player.rect.y -= 1
@@ -263,6 +272,7 @@ while running:
         k += 1
         if k == 24:
             player.choord_x = player.choord_x - 1
+            print(player.choord_x, player.choord_y)
             k = 0
     elif run_left and karta[player.choord_x][player.choord_y - 1] != '1':
         player.rect.x -= 1
@@ -270,6 +280,7 @@ while running:
         k += 1
         if k == 24:
             player.choord_y = player.choord_y - 1
+            print(player.choord_x, player.choord_y)
             k = 0
     elif run_right and karta[player.choord_x][player.choord_y + 1] != '1':
         player.rect.x += 1
@@ -277,11 +288,66 @@ while running:
         k += 1
         if k == 24:
             player.choord_y = player.choord_y + 1
+            print(player.choord_x, player.choord_y)
             k = 0
+    blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
+    if min_way == 'UP':
+        blinky_last_position = 'DOWN'
+        blinky_red_spirit.rect.y -= 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'DOWN':
+        blinky_last_position = 'UP'
+        blinky_red_spirit.rect.y += 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'LEFT':
+        blinky_last_position = 'RIGHT'
+        blinky_red_spirit.rect.x -= 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'RIGHT':
+        blinky_last_position = 'LEFT'
+        blinky_red_spirit.rect.x += 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     dots_group.draw(screen)
     player_group.draw(screen)
+    Spirits.spirits_group.draw(screen)
     all_sprites.update()
     pygame.display.flip()
     clock.tick(FPS)
