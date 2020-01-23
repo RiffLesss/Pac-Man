@@ -1,21 +1,24 @@
 import os
 import sys
 import pygame
+import Spirits
 
 pygame.init()
 pygame.key.set_repeat(200, 70)
 
 
-FPS = 50
+FPS = 60
 WIDTH = 24 * 28
 HEIGHT = 24 * 34
 STEP = 24
 karta = []
 score = 0
-
+pac = 'pacman.jpg'
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 player = None
+pill = False
+
 
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -88,14 +91,16 @@ def generate_level(level):
                 new_player = Pacman(x, y, 25, 14)
                 s.append('.')
             elif level[y][x] == 'd':
-                Dot('dot', x, y)
+                Dot(x, y)
                 s.append('.')
             elif level[y][x] == 'D':
-                Dot('big_dot', x, y)
+                Big_Dot(x, y)
                 s.append('.')
             if len(s) == 28:
                 karta.append(s)
                 s = []
+    karta[16][22] = 'x'
+    karta[16][5] = 'x'
     for elem in karta:
         print(elem)
     return new_player, x, y
@@ -110,7 +115,7 @@ def start_screen():
                   "Если в правилах несколько строк,",
                   "приходится выводить их построчно"]
 
-    fon = pygame.transform.scale(load_image('pacman.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
@@ -137,7 +142,9 @@ tile_images = {'empty': load_image('black.jpg'), 'vert': load_image('vert.jpg'),
                'right_up': load_image('right_up.jpg'), 'right_down': load_image('right_down.jpg'),
                'vert2': load_image('vert2.jpg'), 'hor2': load_image('hor2.jpg')}
 player_image = load_image('pacman.jpg')
-dot_images = {'dot': load_image('dot.jpg'), 'big_dot': load_image('big_dot.jpg')}
+blinky_image = load_image('blinky_1.jpg')
+dot_image = load_image('dot.jpg')
+big_dot_image = load_image('big_dot.jpg')
 tile_width = tile_height = 24
 
 
@@ -155,22 +162,32 @@ class Pacman(pygame.sprite.Sprite):
         self.choord_x = choord_x
         self.choord_y = choord_y
         self.im = 0
-        self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
+        self.rect = self.image.get_rect().move(tile_width * pos_x - 8, tile_height * pos_y - 8)
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
+        global pac
+        global pill
         if (self.im // 10) % 2 == 0:
-            self.image = load_image('pacman.jpg')
+            self.image = load_image(pac)
             self.im += 1
         else:
             self.image = load_image('pacman2.jpg')
             self.im += 1
+        if pygame.sprite.collide_mask(self, blinky_red_spirit):
+            print(pill)
+            if pill:
+                blinky_red_spirit.kill()
+            else:
+                self.kill()
+                terminate()
+
 
 
 class Dot(pygame.sprite.Sprite):
-    def __init__(self, dot_type, pos_x, pos_y):
+    def __init__(self, pos_x, pos_y):
         super().__init__(dots_group, all_sprites)
-        self.image = dot_images[dot_type]
+        self.image = dot_image
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -178,39 +195,183 @@ class Dot(pygame.sprite.Sprite):
         global score
         if pygame.sprite.collide_mask(self, player):
             score += 1
-            print(score)
             self.kill()
             if score == 244:
-                terminate()
+                generate_level('map2.txt')
 
 
+class Big_Dot(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(dots_group, all_sprites)
+        self.image = big_dot_image
+        self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        global score
+        global pill
+        if pygame.sprite.collide_mask(self, player):
+            pill = True
+            score += 1
+            self.kill()
+            if score == 244:
+                generate_level('map2.txt')
+
+
+blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
+blinky_last_position = 'LEFT'
+min_way = 'RIGHT'
 start_screen()
 player, level_x, level_y = generate_level(load_level('map2.txt'))
 running = True
+run_left = False
+run_right = False
+run_up = False
+run_down = False
+k = 0
+k_red = 0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if player.choord_x == 16 and player.choord_y == 27 and event.key == pygame.K_RIGHT:
-                player.choord_y = 0
-                player.rect.x -= STEP
-            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1':
-                player.rect.x -= STEP
-                player.choord_y = player.choord_y - 1
-            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1':
-                player.rect.x += STEP
-                player.choord_y = player.choord_y + 1
-            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1':
-                player.rect.y -= STEP
-                player.choord_x = player.choord_x - 1
-            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1':
-                player.rect.y += STEP
-                player.choord_x = player.choord_x + 1
+            if event.key == pygame.K_s:
+                pygame.mixer.music.load('salo.mp3')
+                pygame.mixer.music.play(0)
+            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1' and not run_left:
+                if run_down:
+                    player.rect.y -= k
+                elif run_up:
+                    player.rect.y += k
+                elif run_right:
+                    player.rect.x -= k
+                k = 0
+                run_left = True
+                run_right = False
+                run_up = False
+                run_down = False
+            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1' and not run_right:
+                if run_down:
+                    player.rect.y -= k
+                elif run_up:
+                    player.rect.y += k
+                elif run_left:
+                    player.rect.x -= k
+                k = 0
+                run_right = True
+                run_left = False
+                run_up = False
+                run_down = False
+            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1' and not run_up:
+                if run_down:
+                    player.rect.y -= k
+                elif run_left:
+                    player.rect.y += k
+                elif run_right:
+                    player.rect.x -= k
+                k = 0
+                run_up = True
+                run_right = False
+                run_left = False
+                run_down = False
+            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1' and not run_down:
+                if run_left:
+                    player.rect.y -= k
+                elif run_up:
+                    player.rect.y += k
+                elif run_right:
+                    player.rect.x -= k
+                k = 0
+                run_down = True
+                run_right = False
+                run_up = False
+                run_left = False
+    if run_down and karta[player.choord_x + 1][player.choord_y] != '1':
+        player.rect.y += 1
+        pac = 'pacman4.jpg'
+        k += 1
+        if k == 24:
+            player.choord_x = player.choord_x + 1
+            k = 0
+    elif run_up and karta[player.choord_x - 1][player.choord_y] != '1':
+        player.rect.y -= 1
+        pac = 'pacman3.jpg'
+        k += 1
+        if k == 24:
+            player.choord_x = player.choord_x - 1
+            k = 0
+    elif run_left and karta[player.choord_x][player.choord_y - 1] != '1':
+        player.rect.x -= 1
+        pac = 'pacman5.jpg'
+        k += 1
+        if k == 24:
+            player.choord_y = player.choord_y - 1
+            k = 0
+    elif run_right and karta[player.choord_x][player.choord_y + 1] != '1':
+        player.rect.x += 1
+        pac = 'pacman.jpg'
+        k += 1
+        if k == 24:
+            player.choord_y = player.choord_y + 1
+            k = 0
+    blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
+    if min_way == 'UP':
+        blinky_last_position = 'DOWN'
+        blinky_red_spirit.rect.y -= 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x - 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'DOWN':
+        blinky_last_position = 'UP'
+        blinky_red_spirit.rect.y += 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_x = blinky_red_spirit.choord_x + 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'LEFT':
+        blinky_last_position = 'RIGHT'
+        blinky_red_spirit.rect.x -= 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y - 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
+    elif min_way == 'RIGHT':
+        blinky_last_position = 'LEFT'
+        blinky_red_spirit.rect.x += 1
+        k_red += 1
+        if k_red == 24:
+            blinky_red_spirit.choord_y = blinky_red_spirit.choord_y + 1
+            if karta[blinky_red_spirit.choord_x][blinky_red_spirit.choord_y] == '.':
+                possible_turns = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way = blinky_red_spirit.folow(karta, blinky_last_position,
+                                                  blinky_red_spirit.choord_x, blinky_red_spirit.choord_y,
+                                                  blinky_red_spirit.mission[0], blinky_red_spirit.mission[1],
+                                                  possible_turns)
+            k_red = 0
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     dots_group.draw(screen)
     player_group.draw(screen)
+    Spirits.spirits_group.draw(screen)
     all_sprites.update()
     pygame.display.flip()
 
