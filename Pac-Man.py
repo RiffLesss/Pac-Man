@@ -17,6 +17,7 @@ pac = 'pacman.jpg'
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 player = None
+pill = False
 
 
 all_sprites = pygame.sprite.Group()
@@ -90,10 +91,10 @@ def generate_level(level):
                 new_player = Pacman(x, y, 25, 14)
                 s.append('.')
             elif level[y][x] == 'd':
-                Dot('dot', x, y)
+                Dot(x, y)
                 s.append('.')
             elif level[y][x] == 'D':
-                Dot('big_dot', x, y)
+                Big_Dot(x, y)
                 s.append('.')
             if len(s) == 28:
                 karta.append(s)
@@ -142,7 +143,8 @@ tile_images = {'empty': load_image('black.jpg'), 'vert': load_image('vert.jpg'),
                'vert2': load_image('vert2.jpg'), 'hor2': load_image('hor2.jpg')}
 player_image = load_image('pacman.jpg')
 blinky_image = load_image('blinky_1.jpg')
-dot_images = {'dot': load_image('dot.jpg'), 'big_dot': load_image('big_dot.jpg')}
+dot_image = load_image('dot.jpg')
+big_dot_image = load_image('big_dot.jpg')
 tile_width = tile_height = 24
 
 
@@ -160,11 +162,12 @@ class Pacman(pygame.sprite.Sprite):
         self.choord_x = choord_x
         self.choord_y = choord_y
         self.im = 0
-        self.rect = self.image.get_rect().move(tile_width * pos_x - 5, tile_height * pos_y - 8)
+        self.rect = self.image.get_rect().move(tile_width * pos_x - 8, tile_height * pos_y - 8)
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
         global pac
+        global pill
         if (self.im // 10) % 2 == 0:
             self.image = load_image(pac)
             self.im += 1
@@ -172,15 +175,19 @@ class Pacman(pygame.sprite.Sprite):
             self.image = load_image('pacman2.jpg')
             self.im += 1
         if pygame.sprite.collide_mask(self, blinky_red_spirit):
-            self.kill()
-            terminate()
+            print(pill)
+            if pill:
+                blinky_red_spirit.kill()
+            else:
+                self.kill()
+                terminate()
 
 
 
 class Dot(pygame.sprite.Sprite):
-    def __init__(self, dot_type, pos_x, pos_y):
+    def __init__(self, pos_x, pos_y):
         super().__init__(dots_group, all_sprites)
-        self.image = dot_images[dot_type]
+        self.image = dot_image
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -190,7 +197,25 @@ class Dot(pygame.sprite.Sprite):
             score += 1
             self.kill()
             if score == 244:
-                terminate()
+                generate_level('map2.txt')
+
+
+class Big_Dot(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(dots_group, all_sprites)
+        self.image = big_dot_image
+        self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        global score
+        global pill
+        if pygame.sprite.collide_mask(self, player):
+            pill = True
+            score += 1
+            self.kill()
+            if score == 244:
+                generate_level('map2.txt')
 
 
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
@@ -213,54 +238,50 @@ while running:
             if event.key == pygame.K_s:
                 pygame.mixer.music.load('salo.mp3')
                 pygame.mixer.music.play(0)
-            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1':
-                if k != 0:
-                    if run_down:
-                        player.rect.y -= k
-                    elif run_up:
-                        player.rect.y += k
-                    elif run_right:
-                        player.rect.x -= k
-                    k = 0
+            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1' and not run_left:
+                if run_down:
+                    player.rect.y -= k
+                elif run_up:
+                    player.rect.y += k
+                elif run_right:
+                    player.rect.x -= k
+                k = 0
                 run_left = True
                 run_right = False
                 run_up = False
                 run_down = False
-            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1':
-                if k != 0:
-                    if run_down:
-                        player.rect.y -= k
-                    elif run_up:
-                        player.rect.y += k
-                    elif run_left:
-                        player.rect.x += k
-                    k = 0
+            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1' and not run_right:
+                if run_down:
+                    player.rect.y -= k
+                elif run_up:
+                    player.rect.y += k
+                elif run_left:
+                    player.rect.x -= k
+                k = 0
                 run_right = True
                 run_left = False
                 run_up = False
                 run_down = False
-            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1':
-                if k != 0:
-                    if run_down:
-                        player.rect.y -= k
-                    elif run_left:
-                        player.rect.x += k
-                    elif run_right:
-                        player.rect.x -= k
-                    k = 0
+            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1' and not run_up:
+                if run_down:
+                    player.rect.y -= k
+                elif run_left:
+                    player.rect.y += k
+                elif run_right:
+                    player.rect.x -= k
+                k = 0
                 run_up = True
                 run_right = False
                 run_left = False
                 run_down = False
-            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1':
-                if k != 0:
-                    if run_up:
-                        player.rect.y += k
-                    elif run_left:
-                        player.rect.x += k
-                    elif run_right:
-                        player.rect.x -= k
-                    k = 0
+            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1' and not run_down:
+                if run_left:
+                    player.rect.y -= k
+                elif run_up:
+                    player.rect.y += k
+                elif run_right:
+                    player.rect.x -= k
+                k = 0
                 run_down = True
                 run_right = False
                 run_up = False
@@ -271,7 +292,6 @@ while running:
         k += 1
         if k == 24:
             player.choord_x = player.choord_x + 1
-            print(player.choord_x, player.choord_y)
             k = 0
     elif run_up and karta[player.choord_x - 1][player.choord_y] != '1':
         player.rect.y -= 1
@@ -279,7 +299,6 @@ while running:
         k += 1
         if k == 24:
             player.choord_x = player.choord_x - 1
-            print(player.choord_x, player.choord_y)
             k = 0
     elif run_left and karta[player.choord_x][player.choord_y - 1] != '1':
         player.rect.x -= 1
@@ -287,7 +306,6 @@ while running:
         k += 1
         if k == 24:
             player.choord_y = player.choord_y - 1
-            print(player.choord_x, player.choord_y)
             k = 0
     elif run_right and karta[player.choord_x][player.choord_y + 1] != '1':
         player.rect.x += 1
@@ -295,7 +313,6 @@ while running:
         k += 1
         if k == 24:
             player.choord_y = player.choord_y + 1
-            print(player.choord_x, player.choord_y)
             k = 0
     blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
     if min_way == 'UP':

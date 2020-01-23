@@ -83,6 +83,9 @@ class Blinky(pygame.sprite.Sprite):                                             
                     min_way = coords[2]
             return min_way
 
+        if pygame.sprite.collide_mask(self, player) and pill:
+            self.kill()
+
 
 class Pinky(pygame.sprite.Sprite):                                                  # Пинки - Розовый призрак
     def __init__(self, pos_x, pos_y, choord_x, choord_y, filename):
