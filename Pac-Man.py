@@ -111,7 +111,6 @@ def generate_level(level):
     karta[17][11] = '1'
     karta[17][12] = '1'
     karta[17][16] = '1'
-    karta[16][11] = '1'
     for elem in karta:
         print(elem)
     return new_player, x, y
@@ -156,6 +155,7 @@ tile_images = {'empty': load_image('black.jpg'), 'vert': load_image('vert.jpg'),
 player_image = load_image('pacman.jpg')
 blinky_image = load_image('blinky_1.jpg')
 pinky_image = load_image('pinky_1.jpg')
+inky_image = load_image('inky_1.jpg')
 clyde_image = load_image('clyde_1.jpg')
 dot_images = {'dot': load_image('dot.jpg'), 'big_dot': load_image('big_dot.jpg')}
 tile_width = tile_height = 24
@@ -182,6 +182,10 @@ class Pacman(pygame.sprite.Sprite):
             self.kill()
             terminate()
 
+        if pygame.sprite.collide_mask(self, pinky_pink_spirit):
+            self.kill()
+            terminate()
+
 
 class Dot(pygame.sprite.Sprite):
     def __init__(self, dot_type, pos_x, pos_y):
@@ -197,6 +201,9 @@ class Dot(pygame.sprite.Sprite):
             print(score)
             self.kill()
 
+# ----------------------------
+# TODO Создание призраков TODO
+# ----------------------------
 
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
 blinky_last_position = 'LEFT'
@@ -209,12 +216,23 @@ min_way_pink = 'UP'
 pinky_leave_home = False
 k_pink = 0
 
+inky_blue_spirit = Spirits.Inky(11, 16, 16, 11, inky_image)
+inky_last_position = 'LEFT'
+min_way_blue = 'RIGHT'
+inky_leave_home_1 = False
+inky_leave_home_2 = False
+k_blue = 0
+
 clyde_orange_spirit = Spirits.Clyde(16, 16, 16, 16, clyde_image)
 clyde_last_position = 'RIGHT'
 min_way_orange = 'LEFT'
 clyde_leave_home_1 = False
 clyde_leave_home_2 = False
 k_orange = 0
+
+#                                       ------------------------------------
+#                                           TODO """ИГРОВОЙ ЦИКЛ""" TODO
+#                                       ------------------------------------
 
 start_screen()
 
@@ -245,9 +263,12 @@ while running:
                 player.rect.y += STEP
                 player.choord_x = player.choord_x + 1
 
-    # Движений Блинки (красный)
+    # -----------------------------------
+    # TODO Движений Блинки (красный) TODO
+    # -----------------------------------
 
     blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
+
     if min_way_red == 'UP':
         blinky_last_position = 'DOWN'
         blinky_red_spirit.rect.y -= 1
@@ -301,12 +322,15 @@ while running:
                                                   possible_turns_red)
             k_red = 0
 
-    # Движение Пинки (розовый)
+    # ----------------------------------
+    # TODO Движение Пинки (розовый) TODO
+    # ----------------------------------
 
     if pinky_pink_spirit.choord_x == 13 and pinky_pink_spirit.choord_y == 14:
         pinky_leave_home = True
 
     pinky_pink_spirit.get_a_mission(player.choord_x, player.choord_y, karta)
+
     if min_way_pink == 'UP':
         pinky_last_position = 'DOWN'
         pinky_pink_spirit.rect.y -= 1
@@ -360,15 +384,85 @@ while running:
                                                   possible_turns_pink, pinky_leave_home)
             k_pink = 0
 
-    # Движение Клайда (Оранжевый)
+    # ---------------------------------
+    # TODO Движение Инки (голубой) TODO
+    # ---------------------------------
+
+    inky_blue_spirit.get_a_mission(player.choord_x, player.choord_y,
+                                    blinky_red_spirit.choord_x, blinky_red_spirit.choord_y)
+
+    if inky_blue_spirit.choord_x == 16 and inky_blue_spirit.choord_y == 14:
+        inky_leave_home_1 = True
+    if inky_blue_spirit.choord_x == 13 and inky_blue_spirit.choord_y == 14:
+        inky_leave_home_2 = True
+
+    inky_blue_spirit.get_a_mission(player.choord_x, player.choord_y,
+                                   blinky_red_spirit.choord_x, blinky_red_spirit.choord_y)
+    if min_way_blue == 'UP':
+        inky_last_position = 'DOWN'
+        inky_blue_spirit.rect.y -= 1
+        k_blue += 1
+        if k_blue == 24:
+            inky_blue_spirit.choord_x = inky_blue_spirit.choord_x - 1
+            if karta[inky_blue_spirit.choord_x][inky_blue_spirit.choord_y] == '.':
+                possible_turns_blue = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way_blue = inky_blue_spirit.folow(karta, inky_last_position,
+                                                  inky_blue_spirit.choord_x, inky_blue_spirit.choord_y,
+                                                  inky_blue_spirit.mission[0], inky_blue_spirit.mission[1],
+                                                  possible_turns_blue, inky_leave_home_1, inky_leave_home_2)
+            k_blue = 0
+    elif min_way_blue == 'DOWN':
+        inky_last_position = 'UP'
+        inky_blue_spirit.rect.y += 1
+        k_blue += 1
+        if k_blue == 24:
+            inky_blue_spirit.choord_x = inky_blue_spirit.choord_x + 1
+            if karta[inky_blue_spirit.choord_x][inky_blue_spirit.choord_y] == '.':
+                possible_turns_blue = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way_blue = inky_blue_spirit.folow(karta, inky_last_position,
+                                                  inky_blue_spirit.choord_x, inky_blue_spirit.choord_y,
+                                                  inky_blue_spirit.mission[0], inky_blue_spirit.mission[1],
+                                                  possible_turns_blue, inky_leave_home_1, inky_leave_home_2)
+            k_blue = 0
+    elif min_way_blue == 'LEFT':
+        inky_last_position = 'RIGHT'
+        inky_blue_spirit.rect.x -= 1
+        k_blue += 1
+        if k_blue == 24:
+            inky_blue_spirit.choord_y = inky_blue_spirit.choord_y - 1
+            if karta[inky_blue_spirit.choord_x][inky_blue_spirit.choord_y] == '.':
+                possible_turns_blue = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way_blue = inky_blue_spirit.folow(karta, inky_last_position,
+                                                  inky_blue_spirit.choord_x, inky_blue_spirit.choord_y,
+                                                  inky_blue_spirit.mission[0], inky_blue_spirit.mission[1],
+                                                  possible_turns_blue, inky_leave_home_1, inky_leave_home_2)
+            k_blue = 0
+    elif min_way_blue == 'RIGHT':
+        inky_last_position = 'LEFT'
+        inky_blue_spirit.rect.x += 1
+        k_blue += 1
+        if k_blue == 24:
+            inky_blue_spirit.choord_y = inky_blue_spirit.choord_y + 1
+            if karta[inky_blue_spirit.choord_x][inky_blue_spirit.choord_y] == '.':
+                possible_turns_blue = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                min_way_blue = inky_blue_spirit.folow(karta, inky_last_position,
+                                                  inky_blue_spirit.choord_x, inky_blue_spirit.choord_y,
+                                                  inky_blue_spirit.mission[0], inky_blue_spirit.mission[1],
+                                                  possible_turns_blue, inky_leave_home_1, inky_leave_home_2)
+            k_blue = 0
+
+    # -------------------------------------
+    # TODO Движение Клайда (Оранжевый) TODO
+    # -------------------------------------
 
     if clyde_orange_spirit.choord_x == 16 and clyde_orange_spirit.choord_y == 14:
         clyde_leave_home_1 = True
     if clyde_orange_spirit.choord_x == 13 and clyde_orange_spirit.choord_y == 14:
         clyde_leave_home_2 = True
 
-    clyde_orange_spirit.get_a_mission(player.choord_x, player.choord_y, karta,
+    clyde_orange_spirit.get_a_mission(player.choord_x, player.choord_y,
                                       clyde_orange_spirit.choord_x, clyde_orange_spirit.choord_y)
+
     if min_way_orange == 'UP':
         clyde_last_position = 'DOWN'
         clyde_orange_spirit.rect.y -= 1
