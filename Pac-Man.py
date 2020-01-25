@@ -83,10 +83,10 @@ def generate_level(level):
             elif level[y][x] == '&':
                 Tile('d_hor', x, y)
                 s.append('1')
-            elif level[y][x] == '?':
+            elif level[y][x] == '+':
                 Tile('d_vert2', x, y)
                 s.append('1')
-            elif level[y][x] == '+':
+            elif level[y][x] == '?':
                 Tile('d_vert', x, y)
                 s.append('1')
             elif level[y][x] == '@':
@@ -262,8 +262,6 @@ class Big_Dot(pygame.sprite.Sprite):
                 t = 0
                 pill = False
                 print('j')
-
-
 
 
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
