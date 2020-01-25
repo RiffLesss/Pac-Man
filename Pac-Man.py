@@ -241,14 +241,6 @@ class Big_Dot(pygame.sprite.Sprite):
             pygame.mixer.music.load('salo.mp3')
             pygame.mixer.music.play()
             pill = True
-            global blinky_image
-            global pinky_image
-            global inky_image
-            global clyde_image
-            blinky_image = load_image('dead_1.jpg')
-            pinky_image = load_image('dead_1.jpg')
-            clyde_image = load_image('dead_1.jpg')
-            inky_image = load_image('dead_1.jpg')
             score += 1
             self.kill()
             if score == 244:
@@ -260,10 +252,6 @@ class Big_Dot(pygame.sprite.Sprite):
             else:
                 t = 0
                 pill = False
-                blinky_image = load_image('blinky_1.jpg')
-                pinky_image = load_image('pinky_1.jpg')
-                clyde_image = load_image('clyde_1.jpg')
-                inky_image = load_image('inky_1.jpg')
 
 
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
