@@ -287,7 +287,7 @@ k_red = 0
 while running:
     if pill:
         blinky_red_spirit.image = load_image('dead_1.jpg')
-        pinky_pink_spirit_image = load_image('dead_1.jpg')
+        pinky_pink_spirit.image = load_image('dead_1.jpg')
         clyde_orange_spirit.image = load_image('dead_1.jpg')
         inky_blue_spirit.image = load_image('dead_1.jpg')
     else:
@@ -361,20 +361,28 @@ while running:
         if k == 24:
             player.choord_x = player.choord_x - 1
             k = 0
-    elif run_left and karta[player.choord_x][player.choord_y - 1] != '1':
+    elif run_left and karta[player.choord_x][player.choord_y - 1] != '1' and player.choord_y != 0:
         player.rect.x -= 1
         pac = 'pacman5.jpg'
         k += 1
         if k == 24:
             player.choord_y = player.choord_y - 1
             k = 0
-    elif run_right and karta[player.choord_x][player.choord_y + 1] != '1':
+    elif run_right and player.choord_y != 27 and karta[player.choord_x][player.choord_y + 1] != '1':
         player.rect.x += 1
         pac = 'pacman.jpg'
         k += 1
         if k == 24:
             player.choord_y = player.choord_y + 1
             k = 0
+    elif player.choord_y == 0:
+        player.choord_y = 27
+        player.rect.x += STEP * 27
+        k = 0
+    elif player.choord_y == 27:
+        player.choord_y = 0
+        player.rect.x -= STEP * 27
+        k = 0
 
     # Движение Блинки (красный)
 
