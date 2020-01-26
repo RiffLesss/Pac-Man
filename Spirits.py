@@ -8,6 +8,7 @@ pygame.init()
 all_sprites = pygame.sprite.Group()
 spirits_group = pygame.sprite.Group()
 tile_width = tile_height = 24
+STEP = 24
 
 
 class Blinky(pygame.sprite.Sprite):                                            # TODO Блинки - Красный призрак TODO
@@ -17,10 +18,15 @@ class Blinky(pygame.sprite.Sprite):                                            #
         self.image = filename
         self.choord_x = choord_x
         self.choord_y = choord_y
-        self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.rect = self.image.get_rect().move(tile_width * self.pos_x - 10, tile_height * self.pos_y - 10)
 
-    def get_a_mission(self, choord_x, choord_y):
-        self.mission = (choord_x, choord_y)
+    def get_a_mission(self, choord_x, choord_y, red_terror):
+        if red_terror:
+            self.mission = (0, 25)
+        else:
+            self.mission = (choord_x, choord_y)
 
     def folow(self, karta, blinky_last_position, x, y, m_x, m_y, possible_turns):
         x = int(x)
@@ -93,31 +99,34 @@ class Pinky(pygame.sprite.Sprite):                                              
         self.choord_y = choord_y
         self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
 
-    def get_a_mission(self, choord_x, choord_y, karta):
-        min_m_x = int(choord_x) - 4
-        if min_m_x < 3:
-            min_m_x = 3
-        max_m_x = int(choord_x) + 4
-        if max_m_x > 31:
-            max_m_x = 31
-        min_m_y = int(choord_y) - 4
-        if min_m_y < 1:
-            min_m_y = 1
-        max_m_y = int(choord_y) + 4
-        if max_m_y > 26:
-            max_m_y = 26
-        m_x = randint(min_m_x, max_m_x)
-        m_y = randint(min_m_y, max_m_y)
-        while karta[m_x][m_y] == '1':
+    def get_a_mission(self, choord_x, choord_y, karta, pink_terror):
+        if pink_terror:
+            self.mission = (0, 2)
+        else:
+            min_m_x = int(choord_x) - 4
+            if min_m_x < 3:
+                min_m_x = 3
+            max_m_x = int(choord_x) + 4
+            if max_m_x > 31:
+                max_m_x = 31
+            min_m_y = int(choord_y) - 4
+            if min_m_y < 1:
+                min_m_y = 1
+            max_m_y = int(choord_y) + 4
+            if max_m_y > 26:
+                max_m_y = 26
             m_x = randint(min_m_x, max_m_x)
             m_y = randint(min_m_y, max_m_y)
-        self.mission = (m_x, m_y)
+            while karta[m_x][m_y] == '1':
+                m_x = randint(min_m_x, max_m_x)
+                m_y = randint(min_m_y, max_m_y)
+            self.mission = (m_x, m_y)
 
-    def folow(self, karta, blinky_last_position, x, y, m_x, m_y, possible_turns, pinky_leave_home):
+    def folow(self, karta, pinky_last_position, x, y, m_x, m_y, possible_turns, pinky_leave_home):
         x = int(x)
         y = int(y)
         for i in range(len(possible_turns)):
-            if possible_turns[i] == blinky_last_position:
+            if possible_turns[i] == pinky_last_position:
                 del possible_turns[i]
                 break
         if karta[x + 1][y] == '1' or karta[x + 1][y] == 'x' or karta[x + 1][y] == 'B' or karta[x + 1][y] == 'O':
@@ -190,10 +199,13 @@ class Inky(pygame.sprite.Sprite):                                               
         self.choord_y = choord_y
         self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
 
-    def get_a_mission(self, choord_x, choord_y, blinky_red_spirit_choord_x, blinky_red_spirit_choord_y):
-        m_x = 2 * int(choord_x) - int(blinky_red_spirit_choord_x)
-        m_y = 2 * int(choord_y) - int(blinky_red_spirit_choord_y)
-        self.mission = (m_x, m_y)
+    def get_a_mission(self, choord_x, choord_y, blinky_red_spirit_choord_x, blinky_red_spirit_choord_y, blue_terror):
+        if blue_terror:
+            self.mission = (35, 27)
+        else:
+            m_x = 2 * int(choord_x) - int(blinky_red_spirit_choord_x)
+            m_y = 2 * int(choord_y) - int(blinky_red_spirit_choord_y)
+            self.mission = (m_x, m_y)
 
     def folow(self, karta, inky_last_position, x, y, m_x, m_y, possible_turns, inky_leave_home_1, inky_leave_home_2):
         x = int(x)
@@ -278,25 +290,28 @@ class Clyde(pygame.sprite.Sprite):                                            # 
         self.choord_y = choord_y
         self.rect = self.image.get_rect().move(tile_width * pos_x - 10, tile_height * pos_y - 10)
 
-    def get_a_mission(self, choord_x, choord_y, clyde_choord_x, clyde_choord_y):
-        min_m_x = int(choord_x) - 8
-        if min_m_x < 3:
-            min_m_x = 3
-        max_m_x = int(choord_x) + 8
-        if max_m_x > 31:
-            max_m_x = 31
-        min_m_y = int(choord_y) - 8
-        if min_m_y < 1:
-            min_m_y = 1
-        max_m_y = int(choord_y) + 8
-        if max_m_y > 26:
-            max_m_y = 26
-        clyde_choord_x = int(clyde_choord_x)
-        clyde_choord_y = int(clyde_choord_y)
-        if clyde_choord_x > min_m_x and clyde_choord_x < max_m_x and clyde_choord_y > min_m_y and clyde_choord_y < max_m_y:
-            self.mission = (28, 6)
+    def get_a_mission(self, choord_x, choord_y, clyde_choord_x, clyde_choord_y, orange_terror):
+        if orange_terror:
+            self.mission = (30, 0)
         else:
-            self.mission = (choord_x, choord_y)
+            min_m_x = int(choord_x) - 8
+            if min_m_x < 3:
+                min_m_x = 3
+            max_m_x = int(choord_x) + 8
+            if max_m_x > 31:
+                max_m_x = 31
+            min_m_y = int(choord_y) - 8
+            if min_m_y < 1:
+                min_m_y = 1
+            max_m_y = int(choord_y) + 8
+            if max_m_y > 26:
+                max_m_y = 26
+            clyde_choord_x = int(clyde_choord_x)
+            clyde_choord_y = int(clyde_choord_y)
+            if clyde_choord_x > min_m_x and clyde_choord_x < max_m_x and clyde_choord_y > min_m_y and clyde_choord_y < max_m_y:
+                self.mission = (28, 6)
+            else:
+                self.mission = (choord_x, choord_y)
 
     def folow(self, karta, blinky_last_position, x, y, m_x, m_y, possible_turns, clyde_leave_home_1, clyde_leave_home_2):
         x = int(x)

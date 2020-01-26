@@ -10,6 +10,7 @@ WIDTH = 24 * 28
 HEIGHT = 24 * 34
 STEP = 24
 karta = []
+dots = 0
 score = 0
 pac = 'pacman.jpg'
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -17,6 +18,11 @@ clock = pygame.time.Clock()
 player = None
 pill = False
 t = 0
+killed_spirits = 1
+red_eat = False
+pink_eat = False
+blue_eat = False
+orange_eat = False
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -108,6 +114,8 @@ def generate_level(level):
     karta[17][12] = '1'
     karta[17][16] = '1'
     karta[16][11] = '1'
+    for elem in karta:
+        print(elem)
     return new_player, x, y
 
 
@@ -178,7 +186,13 @@ class Pacman(pygame.sprite.Sprite):
 
     def update(self):
         global pac
+        global score
         global pill
+        global killed_spirits
+        global red_eat
+        global blue_eat
+        global pink_eat
+        global orange_eat
         if (self.im // 10) % 2 == 0:
             self.image = load_image(pac)
             self.im += 1
@@ -187,25 +201,89 @@ class Pacman(pygame.sprite.Sprite):
             self.im += 1
         if pygame.sprite.collide_mask(self, blinky_red_spirit):
             if pill:
-                blinky_red_spirit.kill()
+                global blinky_last_position
+                global min_way_red
+                global k_red
+                k_red = 0
+                blinky_last_position = 'LEFT'
+                min_way_red = 'RIGHT'
+                blinky_red_spirit.choord_y = 14
+                blinky_red_spirit.choord_x = 13
+                blinky_red_spirit.rect.x = STEP * 14 - 10
+                blinky_red_spirit.rect.y = STEP * 13 - 10
+                if not red_eat:
+                    score += (2 ** killed_spirits) * 100
+                    if killed_spirits == 4:
+                        killed_spirits = 0
+                    else:
+                        killed_spirits += 1
+                    red_eat = True
             else:
                 self.kill()
                 terminate()
         if pygame.sprite.collide_mask(self, pinky_pink_spirit):
             if pill:
-                pinky_pink_spirit.kill()
+                global pinky_last_position
+                global min_way_pink
+                global k_pink
+                k_pink = 0
+                pinky_last_position = 'LEFT'
+                min_way_pink = 'RIGHT'
+                pinky_pink_spirit.choord_y = 14
+                pinky_pink_spirit.choord_x = 13
+                pinky_pink_spirit.rect.x = STEP * 14 - 10
+                pinky_pink_spirit.rect.y = STEP * 13 - 10
+                if not pink_eat:
+                    score += (2 ** killed_spirits) * 100
+                    if killed_spirits == 4:
+                        killed_spirits = 0
+                    else:
+                        killed_spirits += 1
+                    pink_eat = True
             else:
                 self.kill()
                 terminate()
         if pygame.sprite.collide_mask(self, clyde_orange_spirit):
             if pill:
-                clyde_orange_spirit.kill()
+                global clyde_last_position
+                global min_way_orange
+                global k_orange
+                k_orange = 0
+                clyde_last_position = 'LEFT'
+                min_way_orange = 'RIGHT'
+                clyde_orange_spirit.choord_y = 14
+                clyde_orange_spirit.choord_x = 13
+                clyde_orange_spirit.rect.x = STEP * 14 - 10
+                clyde_orange_spirit.rect.y = STEP * 13 - 10
+                if not orange_eat:
+                    score += (2 ** killed_spirits) * 100
+                    if killed_spirits == 4:
+                        killed_spirits = 0
+                    else:
+                        killed_spirits += 1
+                    orange_eat = True
             else:
                 self.kill()
                 terminate()
         if pygame.sprite.collide_mask(self, inky_blue_spirit):
             if pill:
-                inky_blue_spirit.kill()
+                global inky_last_position
+                global min_way_blue
+                global k_blue
+                k_blue = 0
+                inky_last_position = 'LEFT'
+                min_way_blue = 'RIGHT'
+                inky_blue_spirit.choord_y = 14
+                inky_blue_spirit.choord_x = 13
+                inky_blue_spirit.rect.x = STEP * 14 - 10
+                inky_blue_spirit.rect.y = STEP * 13 - 10
+                if not blue_eat:
+                    score += (2 ** killed_spirits) * 100
+                    if killed_spirits == 4:
+                        killed_spirits = 0
+                    else:
+                        killed_spirits += 1
+                    blue_eat = True
             else:
                 self.kill()
                 terminate()
@@ -220,10 +298,13 @@ class Dot(pygame.sprite.Sprite):
 
     def update(self):
         global score
+        global dots
         if pygame.sprite.collide_mask(self, player):
-            score += 1
+            dots += 1
+            score += 10
+            print(dots, score)
             self.kill()
-            if score == 244:
+            if dots == 244:
                 generate_level('map2.txt')
 
 
@@ -237,13 +318,18 @@ class Big_Dot(pygame.sprite.Sprite):
     def update(self):
         global score
         global pill
+        global dots
+        global killed_spirits
         if pygame.sprite.collide_mask(self, player):
             pygame.mixer.music.load('salo.mp3')
             pygame.mixer.music.play()
             pill = True
-            score += 1
+            killed_spirits = 1
+            dots += 1
+            score += 50
+            print(dots, score)
             self.kill()
-            if score == 244:
+            if dots == 244:
                 generate_level('map2.txt')
         if pill:
             global t
@@ -257,10 +343,12 @@ class Big_Dot(pygame.sprite.Sprite):
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
 blinky_last_position = 'LEFT'
 min_way_red = 'RIGHT'
+red_terror = False
 k_red = 0
 pinky_pink_spirit = Spirits.Pinky(14, 16, 16, 14, pinky_image)
 pinky_last_position = 'DOWN'
 min_way_pink = 'UP'
+pink_terror = False
 pinky_leave_home = False
 k_pink = 0
 inky_blue_spirit = Spirits.Inky(11, 16, 16, 11, inky_image)
@@ -268,12 +356,14 @@ inky_last_position = 'LEFT'
 min_way_blue = 'RIGHT'
 inky_leave_home_1 = False
 inky_leave_home_2 = False
+blue_terror = False
 k_blue = 0
 clyde_orange_spirit = Spirits.Clyde(16, 16, 16, 16, clyde_image)
 clyde_last_position = 'RIGHT'
 min_way_orange = 'LEFT'
-clyde_leave_home_1 = False
-clyde_leave_home_2 = False
+clyde_leave_home_1 = True
+clyde_leave_home_2 = True
+orange_terror = False
 k_orange = 0
 start_screen()
 player, level_x, level_y = generate_level(load_level('map2.txt'))
@@ -286,11 +376,23 @@ k = 0
 k_red = 0
 while running:
     if pill:
+        if not red_eat:
+            red_terror = True
+        if not pink_eat:
+            pink_terror = True
+        if not blue_eat:
+            blue_terror = True
+        if not orange_eat:
+            orange_terror = True
         blinky_red_spirit.image = load_image('dead_1.jpg')
         pinky_pink_spirit.image = load_image('dead_1.jpg')
         clyde_orange_spirit.image = load_image('dead_1.jpg')
         inky_blue_spirit.image = load_image('dead_1.jpg')
     else:
+        red_terror = False
+        pink_terror = False
+        blue_terror = False
+        orange_terror = False
         blinky_red_spirit.image = load_image('blinky_1.jpg')
         pinky_pink_spirit.image = load_image('pinky_1.jpg')
         clyde_orange_spirit.image = load_image('clyde_1.jpg')
@@ -386,7 +488,7 @@ while running:
 
     # Движение Блинки (красный)
 
-    blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y)
+    blinky_red_spirit.get_a_mission(player.choord_x, player.choord_y, red_terror)
     if min_way_red == 'UP':
         blinky_last_position = 'DOWN'
         blinky_red_spirit.rect.y -= 1
@@ -445,7 +547,7 @@ while running:
     if pinky_pink_spirit.choord_x == 13 and pinky_pink_spirit.choord_y == 14:
         pinky_leave_home = True
 
-    pinky_pink_spirit.get_a_mission(player.choord_x, player.choord_y, karta)
+    pinky_pink_spirit.get_a_mission(player.choord_x, player.choord_y, karta, pink_terror)
     if min_way_pink == 'UP':
         pinky_last_position = 'DOWN'
         pinky_pink_spirit.rect.y -= 1
@@ -500,14 +602,13 @@ while running:
             k_pink = 0
 
     # Движение Клайда (Оранжевый)
-
     if clyde_orange_spirit.choord_x == 16 and clyde_orange_spirit.choord_y == 14:
         clyde_leave_home_1 = True
     if clyde_orange_spirit.choord_x == 13 and clyde_orange_spirit.choord_y == 14:
         clyde_leave_home_2 = True
 
     clyde_orange_spirit.get_a_mission(player.choord_x, player.choord_y,
-                                      clyde_orange_spirit.choord_x, clyde_orange_spirit.choord_y)
+                                      clyde_orange_spirit.choord_x, clyde_orange_spirit.choord_y, orange_terror)
     if min_way_orange == 'UP':
         clyde_last_position = 'DOWN'
         clyde_orange_spirit.rect.y -= 1
@@ -572,7 +673,7 @@ while running:
     # Движение Инки (синий)
 
     inky_blue_spirit.get_a_mission(player.choord_x, player.choord_y,
-                                   blinky_red_spirit.choord_x, blinky_red_spirit.choord_y)
+                                   blinky_red_spirit.choord_x, blinky_red_spirit.choord_y, blue_terror)
     if min_way_blue == 'UP':
         inky_last_position = 'DOWN'
         inky_blue_spirit.rect.y -= 1
