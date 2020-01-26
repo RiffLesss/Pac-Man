@@ -378,16 +378,28 @@ while running:
     if pill:
         if not red_eat:
             red_terror = True
+            blinky_red_spirit.image = load_image('dead_1.jpg')
+        else:
+            blinky_red_spirit.image = load_image('blinky_1.jpg')
+            red_terror = False
         if not pink_eat:
             pink_terror = True
+            pinky_pink_spirit.image = load_image('dead_1.jpg')
+        else:
+            pinky_pink_spirit.image = load_image('pinky_1.jpg')
+            pink_terror = False
         if not blue_eat:
             blue_terror = True
+            inky_blue_spirit.image = load_image('dead_1.jpg')
+        else:
+            inky_blue_spirit.image = load_image('inky_1.jpg')
+            blue_terror = False
         if not orange_eat:
             orange_terror = True
-        blinky_red_spirit.image = load_image('dead_1.jpg')
-        pinky_pink_spirit.image = load_image('dead_1.jpg')
-        clyde_orange_spirit.image = load_image('dead_1.jpg')
-        inky_blue_spirit.image = load_image('dead_1.jpg')
+            clyde_orange_spirit.image = load_image('dead_1.jpg')
+        else:
+            clyde_orange_spirit.image = load_image('clyde_1.jpg')
+            orange_terror = False
     else:
         red_terror = False
         pink_terror = False
