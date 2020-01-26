@@ -124,24 +124,11 @@ def terminate():
     sys.exit()
 
 
-def start_screen():
-    intro_text = ["ЗАСТАВКА", "",
-                  "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
 
+
+def start_screen():
     fon = pygame.transform.scale(load_image('fon.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 50
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('black'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
 
     while True:
         for event in pygame.event.get():
@@ -200,7 +187,7 @@ class Pacman(pygame.sprite.Sprite):
             self.image = load_image('pacman2.jpg')
             self.im += 1
         if pygame.sprite.collide_mask(self, blinky_red_spirit):
-            if pill:
+            if pill and not red_eat:
                 global blinky_last_position
                 global min_way_red
                 global k_red
@@ -222,7 +209,7 @@ class Pacman(pygame.sprite.Sprite):
                 self.kill()
                 terminate()
         if pygame.sprite.collide_mask(self, pinky_pink_spirit):
-            if pill:
+            if pill and not pink_eat:
                 global pinky_last_position
                 global min_way_pink
                 global k_pink
@@ -244,7 +231,7 @@ class Pacman(pygame.sprite.Sprite):
                 self.kill()
                 terminate()
         if pygame.sprite.collide_mask(self, clyde_orange_spirit):
-            if pill:
+            if pill and not orange_eat:
                 global clyde_last_position
                 global min_way_orange
                 global k_orange
@@ -266,7 +253,7 @@ class Pacman(pygame.sprite.Sprite):
                 self.kill()
                 terminate()
         if pygame.sprite.collide_mask(self, inky_blue_spirit):
-            if pill:
+            if pill and not blue_eat:
                 global inky_last_position
                 global min_way_blue
                 global k_blue
@@ -305,7 +292,7 @@ class Dot(pygame.sprite.Sprite):
             print(dots, score)
             self.kill()
             if dots == 244:
-                generate_level('map2.txt')
+                terminate()
 
 
 class Big_Dot(pygame.sprite.Sprite):
@@ -320,6 +307,10 @@ class Big_Dot(pygame.sprite.Sprite):
         global pill
         global dots
         global killed_spirits
+        global red_eat
+        global blue_eat
+        global pink_eat
+        global orange_eat
         if pygame.sprite.collide_mask(self, player):
             pygame.mixer.music.load('salo.mp3')
             pygame.mixer.music.play()
@@ -330,7 +321,7 @@ class Big_Dot(pygame.sprite.Sprite):
             print(dots, score)
             self.kill()
             if dots == 244:
-                generate_level('map2.txt')
+                terminate()
         if pill:
             global t
             if t < 1500:
@@ -338,6 +329,11 @@ class Big_Dot(pygame.sprite.Sprite):
             else:
                 t = 0
                 pill = False
+                red_eat = False
+                blue_eat = False
+                pink_eat = False
+                orange_eat = False
+
 
 
 blinky_red_spirit = Spirits.Blinky(14, 13, 13, 14, blinky_image)
@@ -744,6 +740,11 @@ while running:
     dots_group.draw(screen)
     player_group.draw(screen)
     Spirits.spirits_group.draw(screen)
+    font = pygame.font.Font('18682.ttf', 50)
+    text = font.render(str(score), 1, (255, 255, 255))
+    text2 = font.render('SCORE', 1, (255, 255, 255))
+    screen.blit(text, (16 * 24, 0))
+    screen.blit(text2, (6 * 24, 0))
     all_sprites.update()
     pygame.display.flip()
     clock.tick(FPS)
