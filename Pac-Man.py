@@ -114,8 +114,6 @@ def generate_level(level):
     karta[17][12] = '1'
     karta[17][16] = '1'
     karta[16][11] = '1'
-    for elem in karta:
-        print(elem)
     return new_player, x, y
 
 
@@ -289,7 +287,6 @@ class Dot(pygame.sprite.Sprite):
         if pygame.sprite.collide_mask(self, player):
             dots += 1
             score += 10
-            print(dots, score)
             self.kill()
             if dots == 244:
                 terminate()
@@ -318,7 +315,6 @@ class Big_Dot(pygame.sprite.Sprite):
             killed_spirits = 1
             dots += 1
             score += 50
-            print(dots, score)
             self.kill()
             if dots == 244:
                 terminate()
@@ -409,7 +405,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT and karta[player.choord_x][player.choord_y - 1] != '1' and not run_left:
+            if (event.key == pygame.K_LEFT or event.key == pygame.K_a) and karta[player.choord_x][player.choord_y - 1] != '1' and not run_left:
                 if run_down:
                     player.rect.y -= k
                 elif run_up:
@@ -421,7 +417,7 @@ while running:
                 run_right = False
                 run_up = False
                 run_down = False
-            if event.key == pygame.K_RIGHT and karta[player.choord_x][player.choord_y + 1] != '1' and not run_right:
+            if (event.key == pygame.K_RIGHT or event.key == pygame.K_d) and karta[player.choord_x][player.choord_y + 1] != '1' and not run_right:
                 if run_down:
                     player.rect.y -= k
                 elif run_up:
@@ -433,7 +429,7 @@ while running:
                 run_left = False
                 run_up = False
                 run_down = False
-            if event.key == pygame.K_UP and karta[player.choord_x - 1][player.choord_y] != '1' and not run_up:
+            if (event.key == pygame.K_UP or event.key == pygame.K_w) and karta[player.choord_x - 1][player.choord_y] != '1' and not run_up:
                 if run_down:
                     player.rect.y -= k
                 elif run_left:
@@ -445,7 +441,7 @@ while running:
                 run_right = False
                 run_left = False
                 run_down = False
-            if event.key == pygame.K_DOWN and karta[player.choord_x + 1][player.choord_y] != '1' and not run_down:
+            if (event.key == pygame.K_DOWN or event.key == pygame.K_s) and karta[player.choord_x + 1][player.choord_y] != '1' and not run_down:
                 if run_left:
                     player.rect.x += k
                 elif run_up:
@@ -748,4 +744,5 @@ while running:
     all_sprites.update()
     pygame.display.flip()
     clock.tick(FPS)
+print(score)
 terminate()
